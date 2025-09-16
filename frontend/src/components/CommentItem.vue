@@ -7,23 +7,27 @@
 
     <div class="text" v-html="c.text"></div>
 
-    <!-- вложенный файл -->
+    <!-- прикреплённый файл -->
     <div v-if="c.file" class="attachment">
-      <img
-        v-if="isImage(c.file)"
-        :src="c.file"
-        alt="attachment"
-      />
-      <pre v-else-if="isText(c.file)" class="txt-preview">{{ txtContent }}</pre>
-      <a
-        v-else
-        :href="c.file"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        📎 Open file
+      <img v-if="isImage(c.file)" :src="c.file" alt="attachment" />
+      <a v-else :href="c.file" target="_blank" rel="noopener noreferrer">
+        📄 Preview file
       </a>
     </div>
+
+    <!-- кнопка ответа -->
+    <div class="actions">
+      <button @click="replying = !replying">
+        {{ replying ? "Cancel" : "Reply" }}
+      </button>
+    </div>
+
+    <!-- форма ответа -->
+    <CommentForm
+      v-if="replying"
+      :parent-id="c.id"
+      @submitted="onReply"
+    />
 
     <!-- рекурсивные ответы -->
     <div class="replies" v-if="c.replies?.length">
@@ -33,32 +37,18 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref } from "vue";
+import CommentForm from "./CommentForm.vue";
 import CommentItem from "./CommentItem.vue";
 
 const props = defineProps({ c: Object });
+const replying = ref(false);
 
-const txtContent = ref("");
-
-// утилиты
 const isImage = (url) => /\.(jpg|jpeg|png|gif)$/i.test(url);
-const isText = (url) => /\.txt$/i.test(url);
 
-// если файл текстовый → грузим его содержимое
-watch(
-  () => props.c?.file,
-  async (newFile) => {
-    if (newFile && isText(newFile)) {
-      try {
-        const res = await fetch(newFile);
-        txtContent.value = await res.text();
-      } catch (err) {
-        txtContent.value = "⚠️ Не удалось загрузить текстовый файл.";
-      }
-    }
-  },
-  { immediate: true }
-);
+const onReply = () => {
+  replying.value = false; // закрываем форму после отправки
+};
 </script>
 
 <style scoped>
@@ -84,18 +74,11 @@ watch(
   border-radius: 4px;
   border: 1px solid #ddd;
 }
-.txt-preview {
+.actions {
   margin-top: 6px;
-  padding: 6px;
-  background: #f8f8f8;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  white-space: pre-wrap;
-  max-width: 600px;
-  max-height: 200px;
-  overflow: auto;
 }
 .replies {
-  margin-left: 8px;
+  margin-left: 12px;
+  margin-top: 8px;
 }
 </style>

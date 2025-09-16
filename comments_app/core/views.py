@@ -27,6 +27,7 @@ class CommentListCreateView(generics.ListCreateAPIView):
     ordering = ["-created_at"]  # сортировка по умолчанию: новые сверху (LIFO)
 
     def perform_create(self, serializer):
+        # проверка капчи
         captcha_id = self.request.data.get("captcha_id")
         captcha_answer = self.request.data.get("captcha_answer")
 
@@ -42,7 +43,7 @@ class CommentListCreateView(generics.ListCreateAPIView):
             raise ValidationError({"captcha": "Incorrect captcha"})
         captcha.delete()  # удалить, чтобы нельзя было переиспользовать
 
-        # если капча ок - создаём пользователя и комментарий
+        # создание пользователя
         username = self.request.data.get("username")
         email = self.request.data.get("email")
         homepage = self.request.data.get("homepage")
@@ -54,7 +55,13 @@ class CommentListCreateView(generics.ListCreateAPIView):
             email=email,
             defaults={"username": username, "homepage": homepage}
         )
-        serializer.save(user=user)
+
+        # поддержка ответов
+        parent_id = self.request.data.get("parent")
+        parent = Comment.objects.filter(id=parent_id).first() if parent_id else None
+
+        # сохранение комментария
+        serializer.save(user=user, parent=parent)
 
 
 class CaptchaView(APIView):
