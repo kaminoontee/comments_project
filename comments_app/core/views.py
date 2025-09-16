@@ -19,12 +19,18 @@ class PreviewView(APIView):
     def post(self, request):
         return Response({"html": sanitize_text(request.data.get("text", ""))})
 class CommentListCreateView(generics.ListCreateAPIView):
-    queryset = Comment.objects.all().select_related("user").prefetch_related("replies").order_by("-created_at")
+    queryset = Comment.objects.filter(parent__isnull=True).select_related("user").prefetch_related("replies")
     serializer_class = CommentSerializer
     permission_classes = [AllowAny]
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ["user__username", "user__email", "created_at"]  # разрешённые поля сортировки
     ordering = ["-created_at"]  # сортировка по умолчанию: новые сверху (LIFO)
+
+    def get_serializer_context(self):
+        # пробросим request в сериализатор (чтобы file был полный URL и в replies)
+        context = super().get_serializer_context()
+        context["request"] = self.request
+        return context
 
     def perform_create(self, serializer):
         # проверка капчи
@@ -60,7 +66,6 @@ class CommentListCreateView(generics.ListCreateAPIView):
         parent_id = self.request.data.get("parent")
         parent = Comment.objects.filter(id=parent_id).first() if parent_id else None
 
-        # сохранение комментария
         serializer.save(user=user, parent=parent)
 
 
