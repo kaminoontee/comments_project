@@ -3,7 +3,7 @@
     <div class="container">
       <!-- секция формы -->
       <div class="form-section">
-        <h2>Leave a Comment</h2>
+        <h2>mini-forum</h2>
         <CommentForm @submitted="refreshComments" />
       </div>
 
@@ -24,7 +24,7 @@ import CommentList from "./components/CommentList.vue";
 const commentList = ref(null);
 
 const refreshComments = () => {
-  commentList.value?.load(); // 🔄 обновляем список после отправки формы
+  commentList.value?.load(); // обновляем список после отправки формы
 };
 </script>
 
