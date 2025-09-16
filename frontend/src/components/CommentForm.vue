@@ -70,23 +70,26 @@ const submitComment = async () => {
   form.append("captcha_answer", captchaAnswer.value);
 
   if (props.parentId) {
-    form.append("parent", props.parentId); // 👈 если это ответ
+    form.append("parent", props.parentId);
   }
   if (file.value) {
     form.append("file", file.value);
   }
 
-  console.log("Submitting:", [...form.entries()]); // 👈 дебаг
-
   try {
     await api.post("comments/", form);
     emit("submitted");
 
-    // очистка формы
+    // 🔹 Полная очистка формы
+    username.value = "";
+    email.value = "";
+    homepage.value = "";
     text.value = "";
     file.value = null;
     captchaAnswer.value = "";
-    if (fileInput.value) fileInput.value.value = ""; // 👈 очищаем инпут файла
+
+    if (fileInput.value) fileInput.value.value = "";
+
     await fetchCaptcha();
   } catch (err) {
     console.error(err.response?.data || err.message);
@@ -98,11 +101,143 @@ const submitComment = async () => {
 <style scoped>
 .form {
   display: grid;
-  gap: 10px;
-  max-width: 500px;
-  margin: 10px 0;
+  gap: 12px;
 }
+
+.form input,
+.form textarea,
+.form select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #b5d6f5;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #eaf4fb;   /* 👈 голубой фон */
+  color: #000;           /* 👈 текст чёрный */
+  transition: border 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.form input::placeholder,
+.form textarea::placeholder {
+  color: #333; /* placeholder тоже тёмный */
+}
+
+.form input:focus,
+.form textarea:focus {
+  border-color: #4a90e2;
+  background: #fff; /* при фокусе фон белый */
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.captcha-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.captcha-box img {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  height: 50px;
+}
+
 .actions {
   margin-top: 8px;
+}
+
+.btn {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn.primary {
+  background: #4a90e2;
+  color: white;
+}
+
+.btn.primary:hover {
+  background: #357abd;
+}
+
+.btn.secondary {
+  background: #eee;
+  color: #333;
+}
+
+.btn.secondary:hover {
+  background: #ddd;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.form input,
+.form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #eaf7ff; /* светло-голубой */
+  color: #000; /* чёрный текст */
+  font-size: 14px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Блок капчи */
+.captcha-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.captcha-block img {
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.captcha-input {
+  flex: 1;
+}
+
+/* Кнопки */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+button {
+  background: #27c7b8;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+button:hover {
+  background: #1fa699;
+}
+
+button:active {
+  transform: scale(0.96);
 }
 </style>
