@@ -108,7 +108,6 @@ const submitComment = async () => {
     console.error(err.response?.data || err.message);
 
     if (err.response?.data?.captcha) {
-      errorMessage.value = err.response.data.captcha;
       isCaptchaError.value = true;
     } else {
       errorMessage.value = "Error while submitting the comment";

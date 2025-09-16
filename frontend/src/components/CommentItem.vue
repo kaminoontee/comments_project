@@ -80,6 +80,8 @@ const onReply = () => {
   margin: 12px 0;
   background: #fafafa;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .avatar img {
@@ -92,6 +94,7 @@ const onReply = () => {
 
 .body {
   flex: 1;
+  min-width: 0; /* чтобы flex не ломал вложенность */
 }
 
 .meta {
@@ -115,14 +118,16 @@ const onReply = () => {
   font-size: 15px;
   margin-bottom: 6px;
   line-height: 1.5;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .attachment {
   margin: 6px 0;
 }
 .attachment img {
-  max-width: 220px;
-  max-height: 160px;
+  max-width: 100%;
+  height: auto;
   border-radius: 6px;
   border: 1px solid #ddd;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
@@ -143,10 +148,16 @@ const onReply = () => {
   text-decoration: underline;
 }
 
+/* replies indentation */
 .replies {
   margin-top: 12px;
-  margin-left: 50px;
+  padding-left: 32px;
   border-left: 2px solid #f0f0f0;
-  padding-left: 12px;
+  box-sizing: border-box;
+}
+
+.replies > * {
+  width: 100%;
+  box-sizing: border-box;
 }
 </style>
