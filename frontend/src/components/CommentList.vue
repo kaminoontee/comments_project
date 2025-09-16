@@ -10,9 +10,12 @@
     </label>
   </div>
 
-  <div v-for="c in results" :key="c.id">
-    <CommentItem :c="c" />
-  </div>
+  <CommentItem
+  v-for="c in results"
+  :key="c.id"
+  :c="c"
+  @submitted="load"
+/>
 
   <div class="pager">
     <button :disabled="!prev" @click="go(prev)">Prev</button>
@@ -30,23 +33,33 @@ const next = ref(null);
 const prev = ref(null);
 const ordering = ref("-created_at");
 
-const buildUrl = (pageUrl=null) => {
+const buildUrl = (pageUrl = null) => {
   if (pageUrl) return pageUrl; // уже полная ссылка от DRF
   return `comments/?ordering=${encodeURIComponent(ordering.value)}`;
 };
 
-const load = async (pageUrl=null) => {
+const load = async (pageUrl = null) => {
   const { data } = await api.get(buildUrl(pageUrl));
   results.value = data.results ?? data; // DRF пагинация вернёт results/next/previous
   next.value = data.next;
   prev.value = data.previous;
 };
+
 const go = async (url) => load(url);
 
 onMounted(load);
+
+// 👇 добавляем это, чтобы App.vue мог вызвать commentList.value.load()
+defineExpose({ load });
 </script>
 
 <style scoped>
-.controls{margin-bottom:10px}
-.pager{display:flex;gap:8px;margin-top:10px}
+.controls {
+  margin-bottom: 10px;
+}
+.pager {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
 </style>

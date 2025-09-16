@@ -30,7 +30,7 @@ import { ref, onMounted } from "vue";
 import { api } from "../services/api";
 
 const props = defineProps({
-  parentId: { type: Number, default: null } // 👈 ID родителя (для ответов)
+  parentId: { type: Number, default: null } // ID родителя (для ответов)
 });
 const emit = defineEmits(["submitted"]); // событие после отправки
 
@@ -112,8 +112,8 @@ const submitComment = async () => {
   border: 1px solid #b5d6f5;
   border-radius: 8px;
   font-size: 14px;
-  background: #eaf4fb;   /* 👈 голубой фон */
-  color: #000;           /* 👈 текст чёрный */
+  background: #eaf4fb;   /* голубой фон */
+  color: #000;           /* текст чёрный */
   transition: border 0.2s, box-shadow 0.2s, background 0.2s;
 }
 

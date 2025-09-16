@@ -2,10 +2,7 @@
   <div class="comment">
     <!-- аватар -->
     <div class="avatar">
-      <img
-        :src="avatarUrl(c.user?.username)"
-        alt="avatar"
-      />
+      <img :src="avatarUrl(c.user?.username)" alt="avatar" />
     </div>
 
     <!-- тело комментария -->
@@ -40,9 +37,14 @@
       />
 
       <!-- рекурсивные ответы -->
-      <div class="replies" v-if="c.replies?.length">
-        <CommentItem v-for="r in c.replies" :key="r.id" :c="r" />
-      </div>
+        <div class="replies" v-if="c.replies?.length">
+        <CommentItem
+        v-for="r in c.replies"
+        :key="r.id"
+        :c="r"
+        @submitted="$emit('submitted')"
+    />
+        </div>
     </div>
   </div>
 </template>
@@ -53,17 +55,18 @@ import CommentForm from "./CommentForm.vue";
 import CommentItem from "./CommentItem.vue";
 
 const props = defineProps({ c: Object });
+const emit = defineEmits(["submitted"]); // 👈 объявляем событие
 const replying = ref(false);
 
 const isImage = (url) => /\.(jpg|jpeg|png|gif)$/i.test(url);
 
 const avatarUrl = (username) => {
-  // простая заглушка: генерируем аватар через https://ui-avatars.com/
   return `https://ui-avatars.com/api/?name=${username || "A"}&background=random`;
 };
 
 const onReply = () => {
   replying.value = false;
+  emit("submitted"); // 👈 после отправки ответа перезагрузим список
 };
 </script>
 
@@ -76,7 +79,7 @@ const onReply = () => {
   border-radius: 10px;
   margin: 12px 0;
   background: #fafafa;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .avatar img {
@@ -122,7 +125,7 @@ const onReply = () => {
   max-height: 160px;
   border-radius: 6px;
   border: 1px solid #ddd;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .actions {
@@ -147,4 +150,3 @@ const onReply = () => {
   padding-left: 12px;
 }
 </style>
-
