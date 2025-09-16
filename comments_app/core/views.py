@@ -1,14 +1,23 @@
+import json
+
 from rest_framework import generics, filters
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from .models import Comment, User, Captcha
-from .serializers import CommentSerializer
+from .serializers import CommentSerializer, CaptchaSerializer
 
-from .serializers import CaptchaSerializer
+from .serializers import sanitize_text
 
+from captcha.models import CaptchaStore
+from captcha.helpers import captcha_image_url
 
+class PreviewView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        return Response({"html": sanitize_text(request.data.get("text", ""))})
 class CommentListCreateView(generics.ListCreateAPIView):
     queryset = Comment.objects.all().select_related("user").prefetch_related("replies").order_by("-created_at")
     serializer_class = CommentSerializer
@@ -18,21 +27,41 @@ class CommentListCreateView(generics.ListCreateAPIView):
     ordering = ["-created_at"]  # сортировка по умолчанию: новые сверху (LIFO)
 
     def perform_create(self, serializer):
-        user_data = self.request.data.get("user", {})
+        captcha_id = self.request.data.get("captcha_id")
+        captcha_answer = self.request.data.get("captcha_answer")
+
+        if not captcha_id or not captcha_answer:
+            raise ValidationError({"captcha": "Captcha is required"})
+
+        try:
+            captcha = CaptchaStore.objects.get(hashkey=captcha_id)
+        except CaptchaStore.DoesNotExist:
+            raise ValidationError({"captcha": "Invalid captcha"})
+
+        if captcha.response != captcha_answer.lower():
+            raise ValidationError({"captcha": "Incorrect captcha"})
+        captcha.delete()  # удалить, чтобы нельзя было переиспользовать
+
+        # если капча ок - создаём пользователя и комментарий
+        username = self.request.data.get("username")
+        email = self.request.data.get("email")
+        homepage = self.request.data.get("homepage")
+
+        if not username or not email:
+            raise ValidationError({"user": "username and email are required"})
+
         user, _ = User.objects.get_or_create(
-            email=user_data.get("email"),
-            defaults={
-                "username": user_data.get("username"),
-                "homepage": user_data.get("homepage"),
-            }
+            email=email,
+            defaults={"username": username, "homepage": homepage}
         )
         serializer.save(user=user)
 
 
 class CaptchaView(APIView):
     def get(self, request):
-        captcha = Captcha.generate()
-        return Response(CaptchaSerializer(captcha).data)
+        new_captcha = CaptchaStore.generate_key()
+        image_url = request.build_absolute_uri(captcha_image_url(new_captcha))
+        return Response({"id": new_captcha, "image_url": image_url})
 
 class CommentRetrieveView(generics.RetrieveAPIView):
     queryset = Comment.objects.all().select_related("user").prefetch_related("replies")

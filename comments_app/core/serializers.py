@@ -6,6 +6,13 @@ from django.core.exceptions import ValidationError
 from django.core.files.images import get_image_dimensions
 from .models import Captcha
 
+from rest_framework import serializers
+
+from PIL import Image
+import io
+from django.core.files.uploadedfile import InMemoryUploadedFile
+import sys
+
 # Допустимые HTML-теги
 ALLOWED_TAGS = ["a", "code", "i", "strong"]
 
@@ -53,19 +60,37 @@ class CommentSerializer(serializers.ModelSerializer):
         if not file:
             return file
 
-        # Ограничение по размеру
+        # Ограничение по размеру (100KB)
         if file.size > 100 * 1024:
             raise serializers.ValidationError("File size must be <= 100KB.")
 
         # Проверка формата
-        if file.content_type.startswith("image/"):
-            w, h = get_image_dimensions(file)
+        if file.content_type in ["image/jpeg", "image/png", "image/gif"]:
+            # Проверяем размеры
+            image = Image.open(file)
+            w, h = image.size
             if w > 320 or h > 240:
-                raise serializers.ValidationError("Image must be <= 320x240px.")
+                # Пропорциональное уменьшение
+                image.thumbnail((320, 240))
+
+                # Сохраняем в память
+                output = io.BytesIO()
+                image.save(output, format=image.format)
+                output.seek(0)
+
+                # Перезаписываем file как новый InMemoryUploadedFile
+                file = InMemoryUploadedFile(
+                    output,
+                    "file",
+                    file.name,
+                    file.content_type,
+                    sys.getsizeof(output),
+                    None,
+                )
         elif file.content_type == "text/plain":
             pass  # ок
         else:
-            raise serializers.ValidationError("Only images and text files are allowed.")
+            raise serializers.ValidationError("Only JPG, PNG, GIF images or text files are allowed.")
 
         return file
 
