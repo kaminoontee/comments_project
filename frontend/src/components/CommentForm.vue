@@ -6,8 +6,10 @@
 
     <textarea v-model="text" rows="4" placeholder="Your comment..." required></textarea>
 
-    <input type="file" @change="onFile" />
+    <!-- выбор файла -->
+    <input type="file" ref="fileInput" @change="onFile" />
 
+    <!-- капча -->
     <div v-if="captcha">
       <img :src="captcha.image_url" alt="captcha" />
       <input v-model="captchaAnswer" placeholder="Enter captcha" required />
@@ -40,6 +42,9 @@ const file = ref(null);
 const captcha = ref(null);
 const captchaAnswer = ref("");
 
+// ref для очистки input type="file"
+const fileInput = ref(null);
+
 const fetchCaptcha = async () => {
   const { data } = await api.get("captcha/");
   captcha.value = data;
@@ -63,18 +68,25 @@ const submitComment = async () => {
   form.append("text", text.value);
   form.append("captcha_id", captcha.value.id);
   form.append("captcha_answer", captchaAnswer.value);
+
   if (props.parentId) {
     form.append("parent", props.parentId); // 👈 если это ответ
   }
-  if (file.value) form.append("file", file.value);
+  if (file.value) {
+    form.append("file", file.value);
+  }
+
+  console.log("Submitting:", [...form.entries()]); // 👈 дебаг
 
   try {
     await api.post("comments/", form);
     emit("submitted");
+
     // очистка формы
     text.value = "";
     file.value = null;
     captchaAnswer.value = "";
+    if (fileInput.value) fileInput.value.value = ""; // 👈 очищаем инпут файла
     await fetchCaptcha();
   } catch (err) {
     console.error(err.response?.data || err.message);

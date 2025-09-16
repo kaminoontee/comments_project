@@ -50,8 +50,15 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ["id", "user", "text", "created_at", "parent", "file", "replies"]
 
+    # def get_file(self, obj):
+    #     request = self.context.get("request")
+    #     if obj.file and hasattr(obj.file, "url"):
+    #         return request.build_absolute_uri(obj.file.url) if request else obj.file.url
+    #     return None
     def get_replies(self, obj):
-        return CommentSerializer(obj.replies.all(), many=True).data
+        # прокинем request в replies
+        serializer = CommentSerializer(obj.replies.all(), many=True, context=self.context)
+        return serializer.data
 
     def validate_text(self, value):
         return sanitize_text(value)
@@ -93,12 +100,6 @@ class CommentSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Only JPG, PNG, GIF images or text files are allowed.")
 
         return file
-
-    def get_file_url(self, obj):
-        request = self.context.get("request")
-        if obj.file and hasattr(obj.file, "url"):
-            return request.build_absolute_uri(obj.file.url) if request else obj.file.url
-        return None
 
 class CaptchaSerializer(serializers.ModelSerializer):
     class Meta:
