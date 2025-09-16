@@ -33,3 +33,8 @@ class CaptchaView(APIView):
     def get(self, request):
         captcha = Captcha.generate()
         return Response(CaptchaSerializer(captcha).data)
+
+class CommentRetrieveView(generics.RetrieveAPIView):
+    queryset = Comment.objects.all().select_related("user").prefetch_related("replies")
+    serializer_class = CommentSerializer
+    permission_classes = [AllowAny]
