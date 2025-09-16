@@ -1,7 +1,7 @@
 <template>
   <div class="controls">
     <label>
-      Sort by:
+      sort by:
       <select v-model="ordering">
         <option value="-created_at">Newest</option>
         <option value="created_at">Oldest</option>

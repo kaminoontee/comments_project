@@ -3,13 +3,13 @@
     <div class="container">
       <!-- секция формы -->
       <div class="form-section">
-        <h2>mini-forum</h2>
+        <h2>leave a comment</h2>
         <CommentForm @submitted="refreshComments" />
       </div>
 
       <!-- секция списка -->
       <div class="comments-section">
-        <h2>Comments</h2>
+        <h2>comments</h2>
         <CommentList ref="commentList" />
       </div>
     </div>

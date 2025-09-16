@@ -1,42 +1,42 @@
 <template>
   <div class="comment">
-    <!-- avatar -->
+    <!-- аватар -->
     <div class="avatar">
       <img :src="avatarUrl(c.user?.username)" alt="avatar" />
     </div>
 
-    <!-- comment body -->
+    <!-- тело комментария -->
     <div class="body">
       <div class="meta">
-        <strong class="username">{{ c.user?.username || "Anonymous" }}</strong>
+        <strong class="username">{{ c.user?.username || "Anonym" }}</strong>
         <span class="date">{{ new Date(c.created_at).toLocaleString() }}</span>
       </div>
 
       <div class="text" v-html="c.text"></div>
 
-      <!-- attached file -->
+      <!-- прикреплённый файл -->
       <div v-if="c.file" class="attachment">
         <img v-if="isImage(c.file)" :src="c.file" alt="attachment" />
         <a v-else :href="c.file" target="_blank" rel="noopener noreferrer">
-          📄 Open file
+          open file
         </a>
       </div>
 
-      <!-- actions -->
+      <!-- кнопки -->
       <div class="actions">
         <button @click="replying = !replying">
-          {{ replying ? "Cancel" : "Reply" }}
+          {{ replying ? "cancel" : "reply" }}
         </button>
       </div>
 
-      <!-- reply form -->
+      <!-- форма ответа -->
       <CommentForm
         v-if="replying"
         :parent-id="c.id"
         @submitted="onReply"
       />
 
-      <!-- nested replies -->
+      <!-- рекурсивные ответы -->
       <div class="replies" v-if="c.replies?.length">
         <CommentItem
           v-for="r in c.replies"
@@ -66,7 +66,7 @@ const avatarUrl = (username) => {
 
 const onReply = () => {
   replying.value = false;
-  emit("submitted"); // reload comments after reply is submitted
+  emit("submitted");
 };
 </script>
 
@@ -74,14 +74,9 @@ const onReply = () => {
 .comment {
   display: flex;
   gap: 12px;
-  padding: 15px;
-  border: 1px solid #e5e5e5;
-  border-radius: 10px;
-  margin: 12px 0;
-  background: #fafafa;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  padding: 15px 0;
+  border-top: 1px solid #e5e5e5;
   width: 100%;
-  box-sizing: border-box;
 }
 
 .avatar img {
@@ -94,19 +89,19 @@ const onReply = () => {
 
 .body {
   flex: 1;
-  min-width: 0; /* чтобы flex не ломал вложенность */
 }
 
 .meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
-  color: #666;
   margin-bottom: 6px;
 }
 
 .username {
   font-weight: bold;
   color: #222;
-  margin-right: 8px;
 }
 
 .date {
@@ -118,16 +113,14 @@ const onReply = () => {
   font-size: 15px;
   margin-bottom: 6px;
   line-height: 1.5;
-  overflow-wrap: anywhere;
-  word-break: break-word;
 }
 
 .attachment {
   margin: 6px 0;
 }
 .attachment img {
-  max-width: 100%;
-  height: auto;
+  max-width: 220px;
+  max-height: 160px;
   border-radius: 6px;
   border: 1px solid #ddd;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05);
@@ -148,16 +141,10 @@ const onReply = () => {
   text-decoration: underline;
 }
 
-/* replies indentation */
 .replies {
   margin-top: 12px;
-  padding-left: 32px;
+  margin-left: 50px;
+  padding-left: 12px;
   border-left: 2px solid #f0f0f0;
-  box-sizing: border-box;
-}
-
-.replies > * {
-  width: 100%;
-  box-sizing: border-box;
 }
 </style>
