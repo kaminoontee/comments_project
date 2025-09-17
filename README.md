@@ -89,6 +89,5 @@ for self-check:
 
 ## additional notes
 
-* the database password is set to `jdth,fath` in this project for testing purposes
 * for production, update `.env` with a strong password
 * if using vds with a domain, replace `localhost` with your domain/ip in `.env` file
