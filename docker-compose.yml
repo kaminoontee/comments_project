@@ -23,8 +23,6 @@ services:
       sh -c "python comments_app/manage.py migrate &&
              python comments_app/manage.py collectstatic --noinput &&
              gunicorn comments_app.wsgi:application --bind 0.0.0.0:8000"
-    volumes:
-      - .:/app
     env_file:
       - .env
     depends_on:
