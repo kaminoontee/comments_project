@@ -7,7 +7,8 @@ services:
     command: >
       sh -c "python comments_app/manage.py migrate &&
              python comments_app/manage.py collectstatic --noinput &&
-             gunicorn comments_app.comments_app.wsgi:application --bind 0.0.0.0:8000
+             gunicorn comments_app.comments_app.wsgi:application --bind 0.0.0.0:8000"
+    
 
     volumes:
       - .:/app
