@@ -16,7 +16,7 @@
     <!-- Login Modal -->
     <div v-if="showLogin" class="modal">
       <div class="modal-content">
-        <h3>log in</h3>
+        <h3>Log in</h3>
         <input v-model="loginUsername" placeholder="Username" />
         <input v-model="loginPassword" type="password" placeholder="Password" />
         <div class="actions">
@@ -30,7 +30,7 @@
     <!-- Register Modal -->
     <div v-if="showRegister" class="modal">
       <div class="modal-content">
-        <h3>sign up</h3>
+        <h3>Sign up</h3>
         <input v-model="registerUsername" placeholder="Username" />
         <input v-model="registerEmail" type="email" placeholder="Email" />
         <input v-model="registerPassword" type="password" placeholder="Password" />
@@ -97,10 +97,7 @@ const handleRegister = async () => {
   } catch (err) {
     console.error("Register error:", err.response?.data || err.message);
     if (err.response?.data) {
-      // собираем сообщения от API и показываем
-      registerError.value = Object.values(err.response.data)
-        .flat()
-        .join("\n");
+      registerError.value = Object.values(err.response.data).flat().join("\n");
     } else {
       registerError.value = "Registration failed";
     }
@@ -125,9 +122,7 @@ const handleLogout = () => {
   padding: 10px 20px;
   border-radius: 0 0 10px 10px;
 }
-h3 {
-    color:black;
-}
+
 .logo {
   font-size: 20px;
   font-weight: bold;
@@ -166,16 +161,27 @@ h3 {
   background: white;
   padding: 20px;
   border-radius: 8px;
-  width: 300px;
+  width: 320px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
 .modal-content input {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  padding: 10px 12px;
+  border: 1px solid #b5d6f5;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #eaf4fb;
+  color: #000;
+  transition: border 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.modal-content input:focus {
+  border-color: #4a90e2;
+  background: #fff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
 .actions {
@@ -194,7 +200,9 @@ h3 {
   background: #ccc;
   color: black;
 }
-
+h3 {
+    color: black;
+}
 .error {
   color: red;
   font-size: 13px;
