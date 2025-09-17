@@ -21,6 +21,12 @@ import { ref } from "vue";
 import CommentForm from "./components/CommentForm.vue";
 import CommentList from "./components/CommentList.vue";
 
+import { onMounted } from "vue";
+
+onMounted(() => {
+  document.title = "mini-forum";
+});
+
 const commentList = ref(null);
 
 const refreshComments = () => {

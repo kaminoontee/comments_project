@@ -82,4 +82,35 @@ defineExpose({ load });
 .fade-leave-to {
   opacity: 0;
 }
+
+.controls {
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: center;  /* по центру */
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+}
+
+.controls select {
+  padding: 8px 14px;
+  font-size: 15px;
+  border: 1px solid #b5d6f5;
+  border-radius: 8px;   /* закруглённые углы */
+  background: #eaf4fb;
+  color: #000;
+  cursor: pointer;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.controls select:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.controls label {
+  font-size: 15px;
+  color: #444;
+}
 </style>
