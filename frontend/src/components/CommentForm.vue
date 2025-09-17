@@ -1,42 +1,47 @@
 <template>
   <form @submit.prevent="submitComment" class="form">
-    <input v-model="username" placeholder="username" required />
-    <input v-model="email" type="email" placeholder="email" required />
-    <input v-model="homepage" type="url" placeholder="homepage (optional)" />
+    <!-- если нет логина -->
+    <div v-if="!isLoggedIn" class="login-required">
+      <p>login required</p>
+    </div>
 
-    <textarea v-model="text" rows="4" placeholder="your comment..." required></textarea>
+    <!-- если залогинен -->
+    <template v-else>
+      <input v-model="homepage" type="url" placeholder="homepage (optional)" />
+      <textarea v-model="text" rows="4" placeholder="your comment..." required></textarea>
 
-    <!-- file upload -->
-    <input type="file" ref="fileInput" @change="onFile" />
+      <!-- file upload -->
+      <input type="file" ref="fileInput" @change="onFile" />
 
-    <!-- captcha -->
-    <div v-if="captcha" class="captcha-container">
-      <div class="captcha-box">
-        <img :src="captcha.image_url" alt="captcha" />
-        <input
-          v-model="captchaAnswer"
-          placeholder="enter captcha"
-          required
-          :class="{ shake: isCaptchaError }"
-          @animationend="isCaptchaError = false"
-        />
-        <button
-          type="button"
-          @click="fetchCaptcha"
-          :class="{ 'refresh-error': isCaptchaError }"
-        >
-          refresh
-        </button>
+      <!-- captcha -->
+      <div v-if="captcha" class="captcha-container">
+        <div class="captcha-box">
+          <img :src="captcha.image_url" alt="captcha" />
+          <input
+            v-model="captchaAnswer"
+            placeholder="enter captcha"
+            required
+            :class="{ shake: isCaptchaError }"
+            @animationend="isCaptchaError = false"
+          />
+          <button
+            type="button"
+            @click="fetchCaptcha"
+            :class="{ 'refresh-error': isCaptchaError }"
+          >
+            refresh
+          </button>
+        </div>
+        <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </div>
-      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-    </div>
-    <div v-else>
-      <p>Loading captcha...</p>
-    </div>
+      <div v-else>
+        <p>Loading captcha...</p>
+      </div>
 
-    <div class="actions">
-      <button type="submit">send</button>
-    </div>
+      <div class="actions">
+        <button type="submit">send</button>
+      </div>
+    </template>
   </form>
 </template>
 
@@ -58,6 +63,7 @@ const captcha = ref(null);
 const captchaAnswer = ref("");
 const errorMessage = ref("");
 const isCaptchaError = ref(false);
+const isLoggedIn = ref(false);
 
 const fileInput = ref(null);
 
@@ -67,15 +73,20 @@ const fetchCaptcha = async () => {
   errorMessage.value = "";
 };
 
-// при монтировании подтягиваем капчу + данные пользователя
 onMounted(() => {
   fetchCaptcha();
 
+  // получаем данные из localStorage
   const savedUsername = localStorage.getItem("username");
   const savedEmail = localStorage.getItem("email");
 
-  if (savedUsername) username.value = savedUsername;
-  if (savedEmail) email.value = savedEmail;
+  if (savedUsername && savedEmail) {
+    username.value = savedUsername;
+    email.value = savedEmail;
+    isLoggedIn.value = true;
+  } else {
+    isLoggedIn.value = false;
+  }
 });
 
 const onFile = (e) => {
@@ -83,6 +94,11 @@ const onFile = (e) => {
 };
 
 const submitComment = async () => {
+  if (!isLoggedIn.value) {
+    errorMessage.value = "login required";
+    return;
+  }
+
   if (!captcha.value) {
     errorMessage.value = "Captcha not loaded yet";
     return;
@@ -103,7 +119,6 @@ const submitComment = async () => {
     await api.post("comments/", form);
     emit("submitted");
 
-    // очищаем только текст и файл, а username/email остаются
     text.value = "";
     file.value = null;
     captchaAnswer.value = "";
@@ -112,12 +127,18 @@ const submitComment = async () => {
     errorMessage.value = "";
     await fetchCaptcha();
   } catch (err) {
-    console.error(err.response?.data || err.message);
+    console.error("Submit error:", err.response?.data || err.message);
 
     if (err.response?.data?.captcha) {
       isCaptchaError.value = true;
+      errorMessage.value = err.response.data.captcha;
+    } else if (err.response?.data) {
+      // собираем ошибки от DRF (могут быть массивы)
+      errorMessage.value = Object.values(err.response.data)
+        .flat()
+        .join("\n");
     } else {
-      errorMessage.value = "Error while submitting the comment";
+      errorMessage.value = "Unexpected error occurred";
     }
 
     await fetchCaptcha();

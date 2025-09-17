@@ -4,32 +4,36 @@ export const api = axios.create({
   baseURL: "http://127.0.0.1:8000/api/",
 });
 
-// сохранить токен
-export const setAuthToken = (token) => {
+// ✅ автоматически вставляем токен из localStorage в каждый запрос
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("access");
   if (token) {
-    localStorage.setItem("token", token);
-    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  } else {
-    localStorage.removeItem("token");
-    delete api.defaults.headers.common["Authorization"];
+    config.headers.Authorization = `Bearer ${token}`;
   }
+  return config;
+});
+
+// сохранить токены
+export const setTokens = (access, refresh) => {
+  localStorage.setItem("access", access);
+  localStorage.setItem("refresh", refresh);
 };
 
-// получить токен
+// получить access токен
 export const getAuthToken = () => {
-  return localStorage.getItem("token");
+  return localStorage.getItem("access");
 };
 
 // проверка авторизации
 export const isAuthenticated = () => {
-  return !!localStorage.getItem("token");
+  return !!localStorage.getItem("access");
 };
 
 // логин
 export const login = async (username, password) => {
   const response = await api.post("token/", { username, password });
-  const token = response.data.access;
-  setAuthToken(token);
+  const { access, refresh } = response.data;
+  setTokens(access, refresh);
   return response.data;
 };
 
@@ -40,5 +44,6 @@ export const register = async (username, email, password) => {
 
 // логаут
 export const logout = () => {
-  setAuthToken(null);
+  localStorage.removeItem("access");
+  localStorage.removeItem("refresh");
 };

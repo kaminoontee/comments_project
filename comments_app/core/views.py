@@ -2,7 +2,7 @@ import json
 
 from rest_framework import generics, filters
 from rest_framework.exceptions import ValidationError
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -28,7 +28,7 @@ class PreviewView(APIView):
 class CommentListCreateView(generics.ListCreateAPIView):
     queryset = Comment.objects.filter(parent__isnull=True).select_related("user").prefetch_related("replies")
     serializer_class = CommentSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ["user__username", "user__email", "created_at"]  # разрешённые поля сортировки
     ordering = ["-created_at"]  # сортировка по умолчанию: новые сверху (LIFO)
@@ -56,18 +56,10 @@ class CommentListCreateView(generics.ListCreateAPIView):
             raise ValidationError({"captcha": "Incorrect captcha"})
         captcha.delete()  # удалить, чтобы нельзя было переиспользовать
 
-        # создание пользователя
-        username = self.request.data.get("username")
-        email = self.request.data.get("email")
-        homepage = self.request.data.get("homepage")
-
-        if not username or not email:
-            raise ValidationError({"user": "username and email are required"})
-
-        user, _ = User.objects.get_or_create(
-            email=email,
-            defaults={"username": username, "homepage": homepage}
-        )
+        # используем юзера из JWT
+        user = self.request.user
+        if not user or not user.is_authenticated:
+            raise ValidationError({"user": "Authentication required"})
 
         # поддержка ответов
         parent_id = self.request.data.get("parent")
@@ -85,7 +77,7 @@ class CaptchaView(APIView):
 class CommentRetrieveView(generics.RetrieveAPIView):
     queryset = Comment.objects.all().select_related("user").prefetch_related("replies")
     serializer_class = CommentSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])

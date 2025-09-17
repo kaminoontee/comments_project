@@ -8,7 +8,7 @@
         <button @click="showRegister = true">Sign up</button>
       </template>
       <template v-else>
-        <span class="welcome">Hello, {{ username }}</span>
+        <span class="welcome">hello, {{ username }}</span>
         <button @click="handleLogout">Logout</button>
       </template>
     </nav>
@@ -94,6 +94,7 @@ const handleLogin = async () => {
     await fetchUserProfile();
     showLogin.value = false;
     loginError.value = "";
+    window.location.reload(); // 🔄 обновляем страницу после логина
   } catch (err) {
     console.error(err);
     loginError.value = "Invalid username or password";
@@ -108,6 +109,7 @@ const handleRegister = async () => {
     await fetchUserProfile();
     showRegister.value = false;
     registerError.value = "";
+    window.location.reload(); // 🔄 обновляем после регистрации
   } catch (err) {
     console.error("Register error:", err.response?.data || err.message);
     if (err.response?.data) {
@@ -124,6 +126,7 @@ const handleLogout = () => {
   username.value = "";
   localStorage.removeItem("username");
   localStorage.removeItem("email");
+  window.location.reload(); // 🔄 обновляем страницу после логаута
 };
 </script>
 

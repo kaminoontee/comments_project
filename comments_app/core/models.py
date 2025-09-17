@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from datetime import timedelta
@@ -11,7 +12,7 @@ class User(models.Model):
         return self.username
 
 class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
