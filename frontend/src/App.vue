@@ -1,6 +1,10 @@
 <template>
   <div class="app">
     <div class="container">
+
+      <!-- шапка -->
+      <Header @auth-changed="refreshComments" />
+
       <!-- секция формы -->
       <div class="form-section">
         <h2>leave a comment</h2>
@@ -20,7 +24,7 @@
 import { ref } from "vue";
 import CommentForm from "./components/CommentForm.vue";
 import CommentList from "./components/CommentList.vue";
-
+import Header from "./components/Header.vue";
 import { onMounted } from "vue";
 
 onMounted(() => {

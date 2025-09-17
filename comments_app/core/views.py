@@ -14,6 +14,10 @@ from .serializers import sanitize_text
 from captcha.models import CaptchaStore
 from captcha.helpers import captcha_image_url
 
+from django.contrib.auth.models import User
+from rest_framework import generics
+from rest_framework.serializers import ModelSerializer
+
 class PreviewView(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
@@ -79,3 +83,4 @@ class CommentRetrieveView(generics.RetrieveAPIView):
     queryset = Comment.objects.all().select_related("user").prefetch_related("replies")
     serializer_class = CommentSerializer
     permission_classes = [AllowAny]
+

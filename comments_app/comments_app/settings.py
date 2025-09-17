@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     "core",
     "corsheaders",
     "captcha",
+    "rest_framework_simplejwt",
+    "users",
 ]
 
 MIDDLEWARE = [
@@ -133,6 +135,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
     "PAGE_SIZE": 25,
     "DEFAULT_FILTER_BACKENDS": [
         "rest_framework.filters.OrderingFilter",
@@ -153,3 +158,13 @@ CAPTCHA_IMAGE_SIZE = (150, 50)
 CAPTCHA_FONT_SIZE = 32
 CAPTCHA_CHALLENGE_FUNCT = "core.captcha_utils.custom_captcha"
 CAPTCHA_LENGTH = 5
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
