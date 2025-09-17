@@ -151,5 +151,5 @@ MEDIA_ROOT = BASE_DIR / "media"
 # настройки каптчи
 CAPTCHA_IMAGE_SIZE = (150, 50)
 CAPTCHA_FONT_SIZE = 32
-CAPTCHA_CHALLENGE_FUNCT = "captcha.helpers.random_char_challenge"  # цифры + буквы
+CAPTCHA_CHALLENGE_FUNCT = "core.captcha_utils.custom_captcha"
 CAPTCHA_LENGTH = 5
