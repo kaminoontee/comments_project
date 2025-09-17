@@ -7,9 +7,10 @@ services:
       dockerfile: Dockerfile.backend
     container_name: forum_backend
     command: >
-      sh -c "python manage.py migrate &&
-             python manage.py collectstatic --noinput &&
+      sh -c "python comments_app/manage.py migrate &&
+             python comments_app/manage.py collectstatic --noinput &&
              gunicorn comments_app.wsgi:application --bind 0.0.0.0:8000"
+
     volumes:
       - .:/app
     env_file:
