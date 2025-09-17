@@ -158,7 +158,10 @@ const submitComment = async () => {
 .form input,
 .form textarea,
 .form select {
-  width: 100%;
+  width: 90%;              /* уменьшаем ширину, чтобы не упиралось в края */
+  max-width: 400px;        /* ограничиваем максимум */
+  margin: 0 auto;          /* центрируем */
+  display: block;          /* чтобы margin: auto сработал */
   padding: 10px 12px;
   border: 1px solid #b5d6f5;
   border-radius: 8px;
