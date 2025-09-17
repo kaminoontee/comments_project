@@ -16,7 +16,10 @@ from captcha.helpers import captcha_image_url
 
 from django.contrib.auth.models import User
 from rest_framework import generics
-from rest_framework.serializers import ModelSerializer
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 class PreviewView(APIView):
     permission_classes = [AllowAny]
@@ -83,4 +86,13 @@ class CommentRetrieveView(generics.RetrieveAPIView):
     queryset = Comment.objects.all().select_related("user").prefetch_related("replies")
     serializer_class = CommentSerializer
     permission_classes = [AllowAny]
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def user_profile(request):
+    user = request.user
+    return Response({
+        "username": user.username,
+        "email": user.email
+    })
 

@@ -57,7 +57,6 @@ const file = ref(null);
 const captcha = ref(null);
 const captchaAnswer = ref("");
 const errorMessage = ref("");
-
 const isCaptchaError = ref(false);
 
 const fileInput = ref(null);
@@ -67,7 +66,17 @@ const fetchCaptcha = async () => {
   captcha.value = data;
   errorMessage.value = "";
 };
-onMounted(fetchCaptcha);
+
+// при монтировании подтягиваем капчу + данные пользователя
+onMounted(() => {
+  fetchCaptcha();
+
+  const savedUsername = localStorage.getItem("username");
+  const savedEmail = localStorage.getItem("email");
+
+  if (savedUsername) username.value = savedUsername;
+  if (savedEmail) email.value = savedEmail;
+});
 
 const onFile = (e) => {
   file.value = e.target.files[0];
@@ -94,9 +103,7 @@ const submitComment = async () => {
     await api.post("comments/", form);
     emit("submitted");
 
-    username.value = "";
-    email.value = "";
-    homepage.value = "";
+    // очищаем только текст и файл, а username/email остаются
     text.value = "";
     file.value = null;
     captchaAnswer.value = "";

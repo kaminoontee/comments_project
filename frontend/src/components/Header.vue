@@ -46,7 +46,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { login, register, logout, isAuthenticated } from "../services/api";
+import { login, register, logout, isAuthenticated, api } from "../services/api";
 
 const isLoggedIn = ref(false);
 const username = ref("");
@@ -66,7 +66,7 @@ const registerEmail = ref("");
 const registerPassword = ref("");
 const registerError = ref("");
 
-// check if already logged in
+// при загрузке проверяем логин
 onMounted(() => {
   isLoggedIn.value = isAuthenticated();
   if (isLoggedIn.value) {
@@ -74,12 +74,24 @@ onMounted(() => {
   }
 });
 
+const fetchUserProfile = async () => {
+  try {
+    const { data } = await api.get("user/");
+    username.value = data.username;
+    localStorage.setItem("username", data.username);
+    if (data.email) {
+      localStorage.setItem("email", data.email);
+    }
+  } catch (err) {
+    console.error("Failed to fetch user profile", err);
+  }
+};
+
 const handleLogin = async () => {
   try {
     await login(loginUsername.value, loginPassword.value);
     isLoggedIn.value = true;
-    username.value = loginUsername.value;
-    localStorage.setItem("username", loginUsername.value);
+    await fetchUserProfile();
     showLogin.value = false;
     loginError.value = "";
   } catch (err) {
@@ -91,7 +103,9 @@ const handleLogin = async () => {
 const handleRegister = async () => {
   try {
     await register(registerUsername.value, registerEmail.value, registerPassword.value);
-    await handleLogin(registerUsername.value, registerPassword.value);
+    await login(registerUsername.value, registerPassword.value);
+    isLoggedIn.value = true;
+    await fetchUserProfile();
     showRegister.value = false;
     registerError.value = "";
   } catch (err) {
@@ -109,6 +123,7 @@ const handleLogout = () => {
   isLoggedIn.value = false;
   username.value = "";
   localStorage.removeItem("username");
+  localStorage.removeItem("email");
 };
 </script>
 

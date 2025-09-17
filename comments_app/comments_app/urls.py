@@ -20,6 +20,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import RegisterView
+from core.views import user_profile
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -28,6 +29,7 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("captcha/", include("captcha.urls")),
     path("api/register/", RegisterView.as_view(), name="register"),
+    path("api/user/", user_profile, name="user_profile"),
 ]
 
 
