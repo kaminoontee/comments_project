@@ -7,10 +7,10 @@ until nc -z "${POSTGRES_HOST:-db}" "${POSTGRES_PORT:-5432}"; do
 done
 
 echo "Running migrations..."
-python comments_app/manage.py migrate --noinput
+python manage.py migrate --noinput
 
 echo "Collecting static files..."
-python comments_app/manage.py collectstatic --noinput || true
+python manage.py collectstatic --noinput || true
 
 echo "Starting Gunicorn..."
 exec gunicorn comments_app.wsgi:application \

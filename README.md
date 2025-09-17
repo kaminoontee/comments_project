@@ -46,7 +46,7 @@ VITE_API_URL=http://localhost:8000/api/
 ### build and run with docker compose
 
 ```bash
-docker compose up --build
+docker-compose up -d
 ```
 
 this will start three services:
