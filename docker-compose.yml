@@ -1,8 +1,10 @@
+version: "3.9"
+
 services:
   backend:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.backend
     container_name: forum_backend
     command: >
       sh -c "python manage.py migrate &&
@@ -19,14 +21,8 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.frontend
     container_name: forum_frontend
-    volumes:
-      - ./frontend:/app
-    env_file:
-      - .env
     ports:
       - "5173:5173"
-    depends_on:
-      - backend
     restart: always
