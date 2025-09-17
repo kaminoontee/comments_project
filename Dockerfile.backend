@@ -2,17 +2,19 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# зависимости системы
+# системные зависимости (добавил netcat-openbsd)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential libpq-dev && \
+    build-essential libpq-dev netcat-openbsd && \
     rm -rf /var/lib/apt/lists/*
 
 # зависимости Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt gunicorn
 
-# копируем backend
-COPY comments_app/ ./comments_app
+# копируем весь проект (и backend, и manage.py, и frontend-dist)
+COPY . .
+
+# entrypoint
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
