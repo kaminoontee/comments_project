@@ -39,7 +39,7 @@ create a `.env` file in the project root:
 ```env
 POSTGRES_DB=comments_db
 POSTGRES_USER=postgres
-POSTGRES_PASSWORD=jdth,fath
+POSTGRES_PASSWORD=pass
 VITE_API_URL=http://localhost:8000/api/
 ```
 
